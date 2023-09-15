@@ -1,0 +1,193 @@
+---
+title: "Rendimento real médio mensal de todos os trabalhos efetivos"
+subtitle: "Econometria II - Séries Temporais"
+author: "Francisco Alexandre"
+date: "2023-08-23"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message = FALSE)
+```
+
+```{r limpa memoria}
+rm(list = ls())
+```
+
+# 1 Introdução
+
+A análise das séries temporais desempenha um papel crucial no campo da economia e na compreensão das tendências econômicas ao longo do tempo. Neste estudo, apresento uma série temporal que representa o rendimento real médio mensal de todos os trabalhos efetivos no Brasil. Trata-se do rendimento bruto real médio efetivamente recebido no mês de referência em todos os trabalhos que as pessoas ocupadas com rendimento tinham na semana referência. Essa série reflete não apenas a situação econômica do país, mas também as condições de vida de seus habitantes. Os dados utilizados neste estudo foram obtidos por meio da biblioteca ipeatadar, disponibilizada pelo Instituto de Pesquisa Econômica Aplicada (IPEA). Foram selecionadas informações da Pesquisa Nacional por Amostra de Domicílios Contínua (PNADC), que é fonte confiável e abrangente de dados sobre o mercado de trabalho brasileiro.
+
+A série temporal em análise abrange um período de 137 observações mensais, que se estende desde março de 2021 até julho de 2023. Essa janela temporal nos permitirá examinar tendências e padrões que podem ter ocorrido ao longo desse período, bem como identificar qualquer sazonalidade que possa afetar o rendimento real médio. A análise desses dados é de grande relevância, pois fornece insights valiosos sobre a dinâmica econômica do país. Ao longo deste estudo, exploro diversos aspectos, incluindo a distribuição dos rendimentos, estatísticas descritivas que resumem as características centrais da série, além de gráficos que nos ajudarão a visualizar padrões e sazonalidades.
+
+Além disso, realizaremos uma análise mais aprofundada por meio de correlogramas, que nos permitirão identificar possíveis modelos ARMA (AutoRegressive Moving Average) para melhor compreender a estrutura temporal subjacente da série. Também aplicaremos técnicas de dessazonalização, como a metodologia X11 do Census Bureau dos Estados Unidos, para isolar a tendência e os componentes de erro da série, a fim de examiná-los com maior precisão.
+
+Este estudo visa contribuir para uma melhor compreensão da dinâmica do mercado de trabalho no Brasil, permitindo uma análise mais informada das flutuações no rendimento real médio mensal de todos os trabalhos efetivos. Na proxima seção, apresento os resultados iniciais desta análise, incluindo um histograma da distribuição dos rendimentos e estatísticas descritivas que resumem as principais características da série temporal.
+
+```{r packages and libraries}
+#install.packages('PNADcIBGE')
+#install.packages("ipeadatar")
+#install.packages("forecast")
+#install.packages("dygraphs")
+library(knitr)
+library(ipeadatar)
+library(dplyr)
+library(forecast)
+library(dygraphs)
+```
+
+```{r read data }
+# Obtenha todas as séries disponíveis PNADC12_RRTE12, PNADC12_RRTH12
+series_ipeadata <- available_series()
+```
+
+```{r seleciona}
+#Aqui seleciona Rendimento real médio de todos os trabalhos efetivos mensais PNADC12_RRTE12
+dados_refet <- ipeadata("PNADC12_RRTE12")
+```
+
+```{r seleciona serie}
+# Selecione apenas as variáveis "data" e "valor" de dados_refet
+dados_refet <- select(dados_refet, date, value)
+```
+
+# 2 Resultados
+
+## 2.2 Histograma 1
+
+Logo abaixo temos um histograma para melhor visualização da distribuição dos dados.
+
+```{r histograma}
+#histograma
+hist(dados_refet$value,prob=T,main="Rendimento real médio de todos os trabalhos efetivos mensais", ylab = "Densidade", xlab = "Dados")
+
+```
+
+Identifica-se pelo histograma da série de dados que a maioria deles se concentra no intervalo de 2.800 a 3.000 reais.
+
+## 2.3 Estatísticas Descrítivas
+
+```{r est descritivas}
+# Calcular estatísticas descritivas
+estatisticas_refet <- dados_refet %>%
+  summarise(
+    Média = mean(value),
+    Mediana = median(value),
+    Mínimo = min(value),
+    Máximo = max(value),
+    Desvio_Padrão = sd(value),
+    Variância = var(value)
+  )
+
+# Use a função kable para formatar a tabela
+estatisticas_formatadas <- kable(estatisticas_refet, format = "markdown", col.names = c("Média", "Mediana", "Mínimo", "Máximo", "Desvio Padrão", "Variância"))
+
+estatisticas_formatadas
+
+```
+
+Como era de se esperar a média (2.944,35 reais) em torno onde estavam concentrado a maioria dos dados no histograma, nota-se tambem com destaque o desvio padrão, isto é, a distância dos valores em torno da média é de (145,8 reais) indicando pouca variação da renda média real no período analisado.
+
+## 2.1 Gráfico 1
+
+```{r plot}
+
+# Crie um vetor de datas para o eixo x
+datas <- seq(as.Date("2012-03-01"), as.Date("2023-07-01"), by = "1 month")
+
+
+# Crie o gráfico de séries temporais
+plot.ts(dados_refet$value, main = "Rendimento real médio de todos os trabalhos efetivos mensais",
+        xaxt = "n", ylab = "Rendimento Real Medio", xlab = "Tempo (Meses)")
+
+# Personalize o eixo x
+axis(1, at = 1:length(datas), labels = format(datas, "%b %Y"), tick = TRUE, las = 2,cex.axis = 0.55)
+
+```
+
+Logo abaixo temos o mesmo gráfico apresentado com mais detalhes para melhor interação e visualização.
+
+```{r grafico 1 com mais detalhes}
+
+# serie = ts(dados_refet$value, start = c(2012,3), frequency = 12)
+# #para html
+# # Grafico dos dados com detalhes
+# dygraph(
+#   data = serie,
+#   main = "Rendimento Real Medio do Brasil de 2012 a 2023",
+#   xlab = "Mês",
+#   ylab = "Rendimento Real Medio"
+# )
+```
+
+É facil notar que há uma sazonalidade nesta série, com amplitudes de renda entre os meses de janeiro a março, geralmente começando a aumentar em dezembro. Dessa forma, esta série possui sazonalidade e esta é do tipo multiplicativa, podendo visualmente identificada, pois a amplitude desta aumenta com o passar do tempo. Logo abaixo observa-se esses aspectos nitidamente pela função de autocorrelação. Ainda podemos destacar uma forte queda da renda entre fevereiro e dezembro de 2021, que pode ter ocorrido pelos efeitos adversos causados pela pandemia de covid-19.
+
+## 2.4 Correlogramas e modelos ARMA(p,q)
+
+```{r correlogramas}
+#FAC E FACP da serie refet
+refet_FAC = Acf(dados_refet$value,lag=137,main="FAC" )
+refet_FACP = pacf(dados_refet$value,lag=137,main="FACP")
+
+```
+
+Ao analisar o correlograma, percebe-se uma sazonalidade do tipo multiplicativa que incide em épocas específicas e em seus arredores. Isto é, a significância estatística não se limita apenas aos períodos, mas também abrange os arredores da série de dados. Considerando essa análise, pondera-se sobre alguns modelos do tipo ARMA que podem ser apropriados. O AR(2) surge como uma escolha adequada, uma vez que na Função de Autocorrelação (FAC), há um declínio exponencial visível, enquanto na Função de Autocorrelação Parcial (FACP), ocorre um truncamento no segundo lag. Também é possível sugerir a possibilidade de um MA(2), uma vez que existe um truncamento no segundo lag da FAC. Dessa forma, pretende-se testar um modelo do tipo ARMA(2,2) para uma análise mais aprofundada presente nos dados.
+
+## 2.5 Decomposição X11
+
+Um método comum para dessazonalizar séries temporais é utilizar a metodologia do Census Bureau dos Estados Unidos da América, conhecida como X11 (US BUREAU OF THE CENSUS, 2013). O primeiro passo é carregar o pacote 'seasonal' (SAX e EDDELBUETTEL, 2018) no ambiente de trabalho. Para visualizar os resultados, utilizei a função 'autoplot' do pacote 'fpp2' (HYNDMAN, 2018), que nos permite criar um gráfico informativo.
+
+```{r decomp x11}
+
+serie = ts(dados_refet$value, start = c(2012,3), frequency = 12)
+
+# decomposição pelo X11 do Census Bureau
+library(seasonal)
+fit <- seas(serie, x11 = "")
+# serie %>% seas(x11='') -> fit # uso a serie 'series', aplico o 'seas' x11
+# e gero 'fit'
+library(fpp2)
+autoplot(fit) + ggtitle("Decomposição X11 da série")
+
+```
+
+Abaixo temos um gráfico que mostra a série dessazonalizada e a sua tendência obtida através da técnica *Rolling Mean*.
+
+### 2.2 Gráfico 2
+
+```{r plot 2}
+
+autoplot(serie, series = "Data") + autolayer(trendcycle(fit), series = "Trend") + 
+    autolayer(seasadj(fit), series = "Seasonally Adjusted") + xlab("Ano") + ylab("Rendimento real médio") + 
+    ggtitle("Rendimento real médio de todos os trabalhos efetivos mensais") + 
+    scale_colour_manual(values = c("gray", "blue", "red"), breaks = c("Data", "Seasonally Adjusted", 
+        "Trend"))
+
+```
+
+Observa-se na série temporal a presença de componentes sazonais e de tendência. Para isolar esses elementos, foi realizada a decomposição da série, resultando na extração da componente dessazonalizada. Em outras palavras, a série dessazonalizada consiste apenas na parte que reflete a tendência e os componentes de erro, eliminando completamente a influência sazonal. Portanto, agora dispomos da série temporal original, porém, sem a presença da sazonalidade, o que nos permite analisá-la de forma mais precisa e identificar padrões e correlações sem a interferência das variações sazonais.
+
+Dessa forma, ao analisar o gráfico, observa-se um crescimento no rendimento médio ao longo dos anos, com a influência de algum choque no período entre 2021 e 2022, caracterizado por um forte aumento no final de 2022, seguido pela retomada da tendência de crescimento anterior a esse choque.
+
+# 3 Conclusões
+
+A série temporal do rendimento real médio mensal estudada oferece insights valiosos sobre a economia do país e as condições de vida da população. Ela reflete a dinâmica do mercado de trabalho brasileiro e suas flutuações ao longo do tempo. Dessa forma, Utilizei dados da Pesquisa Nacional por Amostra de Domicílios Contínua (PNADC), para garantir a qualidade dos dados.
+
+A análise revelou a presença de sazonalidade na série temporal. Esta sazonalidade é do tipo multiplicativa e está relacionada a variações nos rendimentos ao longo do ano, com destaque para os meses de dezembro a fevereiro, nos quais as amplitudes de renda são mais evidentes.
+
+A aplicação da metodologia X11 do Census Bureau dos Estados Unidos permitiu a dessazonalização da série, isolando a tendência e os componentes de erro. Isso nos possibilitou analisar a série de forma mais precisa, identificando padrões e correlações sem a influência das variações sazonais.
+
+# 4 Referências
+
+FIGUEIREDO, Adriano Marcos Rodrigues. Séries Temporais: decomposição clássica e a abordagem X11. Campo Grande-MS,Brasil: RStudio/Rpubs, 2019. Disponível em <http://rpubs.com/amrofi/decompose_x11_varejoms>.
+
+HYNDMAN, Rob. (2018). fpp2: Data for "Forecasting: Principles and Practice" (2nd Edition). R package version 2.3. Disponível em: <https://CRAN.R-project.org/package=fpp2>.
+
+Luiz Eduardo S. Gomes, Jessyka A. P. Goltara (2022). ipeadatar: API Wrapper for 'Ipeadata'. R package version 0.1.6. URL: [https://CRAN.R-project.org/package=ipeadatar](https://cran.r-project.org/package=ipeadatar).
+
+SAX C.; EDDELBUETTEL, D. (2018). "Seasonal Adjustment by X-13ARIMA-SEATS in R." Journal of Statistical Software, 87(11), 1-17. doi: 10.18637/jss.v087.i11 (URL: <https://doi.org/10.18637/jss.v087.i11>).
+
+US BUREAU OF THE CENSUS (2013). X-13ARIMA-SEATS Reference Manual Accessible HTML Output Version. Staff Statistical Research Division, US Bureau of the Census, disponível em: <http://www.census.gov/ts/x13as/docX13ASHTML.pdf>.
