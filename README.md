@@ -1,7 +1,7 @@
 # Análise de Série Temporal com R Markdown
 **Análise de Série Temporal de Rendimento Real Médio Mensal de Trabalhos Efetivos com Base na PNADC**
 
-Para melhor visualização dos resultados e códigos visite: https://rpubs.com/alecorreia94/1083385
+Para melhor visualização dos resultados e códigos visite: [https://rpubs.com/alecorreia94/1083385]
 
 ## Descrição
 
