@@ -56,7 +56,8 @@ Se você deseja contribuir para este projeto, siga estas etapas:
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - consulte o arquivo LICENSE para obter detalhes.
-Contato
+
+## Contato
 
     Nome: Francisco Alexandre
     Email: alecorreia94@alu.ufc.br
