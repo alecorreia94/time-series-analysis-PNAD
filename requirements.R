@@ -1,0 +1,7 @@
+install.packages("ipeadatar")
+install.packages("forecast")
+install.packages("dygraphs")
+install.packages("ffp2")
+install.packages("seasonal")
+install.packages("ggplot2")
+install.packages("dplyr")
