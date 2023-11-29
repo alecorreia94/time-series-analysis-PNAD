@@ -1,13 +1,13 @@
 ---
-title: "Rendimento real médio mensal de todos os trabalhos efetivos"
+title: "Rendimento real médio mensal de todos os trabalhos efetivos no Brasil"
 subtitle: "Econometria II - Séries Temporais"
 author: "Francisco Alexandre"
-date: "2023-08-23"
+date: "2023-11-29"
 output:
-  html_document: default
-  word_document: default
   pdf_document:
     latex_engine: xelatex
+  word_document: default
+  html_document: default
 header-includes:
    - \usepackage{parskip}
 always_allow_html: true
@@ -87,6 +87,7 @@ library(forecast)
 library(dygraphs)
 library(urca)
 library(rugarch)
+library(nortsTest)
 ```
 
 ```{r read data }
@@ -423,20 +424,24 @@ plot(previsoes, main = "Previsões ARMA(2,2)")
     Como ultima etapa de análise deste estudo mostramos os testes em
 relação a heterocedasticidade condicional do modelo escolhido.
 
-```{r testes cond}
+```{r correlograma2}
 # Calcular os resíduos ao quadrado
 residuos_quadrados <- residuos^2
 
 # Criar correlograma dos resíduos ao quadrado
 Acf(residuos_quadrados, main = "Correlograma dos Resíduos ao Quadrado")
+```
 
-# Teste Ljung-Box para os resíduos ao quadrado
-Box.test(residuos_quadrados, lag = 20, type = "Ljung-Box")
+
+```{r testes arch}
+
+#Teste Arch
+arch.test(residuos_quadrados,arch = c("box","Lm"),alpha = 0.05,lag.max = 2)
 
 ```
 
     Pelo correlograma e o teste de Box-Ljung pode-se inferir presença
-deefeitos ARCH nos resíduos já que há picos significativos. Então,
+de efeitos ARCH nos resíduos já que há picos significativos. Então,
 provavelmente o modelo apresenta alguma dependência temporal. Além
 disso, rejeita-se a hipótese nula de que todos os coeficientes de
 autocorrelação dos resíduos são iguais a 0. Dessa forma, agora pode-se
@@ -446,7 +451,7 @@ ajustar os resíduos da estimação em um modelo GARCH(1,1).
 # Ajustar um modelo GARCH aos resíduos
 modelo_garch <- ugarchspec(variance.model = list(model = "sGARCH", 
                                                  garchOrder = c(1, 1)), 
-                           mean.model = list(armaOrder = c(0, 0)))
+                           mean.model = list(armaOrder = c(2, 2)))
 ajuste_garch <- ugarchfit(modelo_garch, data = residuos_quadrados)
 
 print(ajuste_garch)
@@ -460,6 +465,7 @@ efeitos ARCH significativos.
 ```{r plot3}
 # Gráfico da variância ou desvio padrão condicional
 plot(ajuste_garch, which = 3)
+
 ```
 
     Observa-se no gráfico acima a volatilidade condicional (cinza) e os
