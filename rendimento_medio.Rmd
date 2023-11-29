@@ -4,9 +4,12 @@ subtitle: "Econometria II - Séries Temporais"
 author: "Francisco Alexandre"
 date: "2023-08-23"
 output:
-  pdf_document: default
   html_document: default
   word_document: default
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+   - \usepackage{parskip}
 always_allow_html: true
 editor_options: 
   markdown: 
@@ -22,59 +25,61 @@ GitHub: [<https://github.com/alecorreia94/time-series-analysis-PNAD>]
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message = FALSE)
 ```
 
-Limpeza da memória do R:
-
-```{r limpa memoria}
+```{r limpa memoria, include=FALSE}
+#Limpeza da memória do R
 rm(list = ls())
 ```
 
 # 1 Introdução
 
-A análise de séries temporais desempenha um papel crucial no campo da
-economia e na compreensão das tendências econômicas ao longo do tempo.
-Neste estudo, apresenta-se uma série temporal que representa o rendimento
-real médio mensal de todos os trabalhos efetivos no Brasil. Trata-se do
-rendimento bruto real médio efetivamente recebido no mês de referência
-em todos os trabalhos que as pessoas ocupadas com rendimento tinham na
-semana de referência. 
+    A análise de séries temporais desempenha um papel crucial no campo
+da economia e na compreensão das tendências econômicas ao longo do
+tempo. Neste estudo, apresenta-se uma série temporal que representa o
+rendimento real médio mensal de todos os trabalhos efetivos no Brasil.
+Trata-se do rendimento bruto real médio efetivamente recebido no mês de
+referência em todos os trabalhos que as pessoas ocupadas com rendimento
+tinham na semana de referência.
 
-Essa série reflete não apenas a situação econômica do
-país, mas também as condições de vida de seus habitantes. Os dados
-utilizados neste estudo foram obtidos por meio da biblioteca ipeatadar,
-disponibilizada pelo Instituto de Pesquisa Econômica Aplicada (IPEA).Desta forma,foram selecionadas informações da Pesquisa Nacional por Amostra de
-Domicílios Contínua (PNADC), Fonte confiável e abrangente de dados
-sobre o mercado de trabalho brasileiro.
+    Essa série reflete não apenas a situação econômica do país, mas
+também as condições de vida de seus habitantes. Os dados utilizados
+neste estudo foram obtidos por meio da biblioteca ipeatadar,
+disponibilizada pelo Instituto de Pesquisa Econômica Aplicada
+(IPEA).Desta forma,foram selecionadas informações da Pesquisa Nacional
+por Amostra de Domicílios Contínua (PNADC), Fonte confiável e abrangente
+de dados sobre o mercado de trabalho brasileiro.
 
-A série temporal em análise abrange um período de 137 observações
+    A série temporal em análise abrange um período de 137 observações
 mensais, que se estende desde março de 2021 até julho de 2023. Essa
-janela temporal nos permite examinar tendências e padrões que podem
-ter ocorrido ao longo desse período, bem como identificar qualquer
+janela temporal nos permite examinar tendências e padrões que podem ter
+ocorrido ao longo desse período, bem como identificar qualquer
 sazonalidade que possa afetar o rendimento real médio. A análise desses
-dados é de grande relevância, pois fornece $\textit{insights}$ valiosos sobre a
-dinâmica econômica do país. Ao longo deste estudo, exploro diversos
-aspectos, incluindo a distribuição dos rendimentos, estatísticas
-descritivas que resumem as características centrais da série, além de
-gráficos que ajudam a visualizar padrões e sazonalidades.
+dados é de grande relevância, pois fornece $\textit{insights}$ valiosos
+sobre a dinâmica econômica do país. Ao longo deste estudo, exploro
+diversos aspectos, incluindo a distribuição dos rendimentos,
+estatísticas descritivas que resumem as características centrais da
+série, além de gráficos que ajudam a visualizar padrões e sazonalidades.
 
-Além disso, realiza-se uma análise mais profunda por meio de
-correlogramas para identificar possíveis modelos ARMA
-(AutoRegressive Moving Average) de forma a melhorar a compreensão sobre a estrutura
+    Além disso, realiza-se uma análise mais profunda por meio de
+correlogramas para identificar possíveis modelos ARMA (AutoRegressive
+Moving Average) de forma a melhorar a compreensão sobre a estrutura
 temporal subjacente da série. Também aplica-se a técnica de
-dessazonalização X11 do Census Bureau dos Estados
-Unidos, para isolar a tendência e os componentes de erro da série, a fim
-de examiná-los com maior precisão.
+dessazonalização X11 do Census Bureau dos Estados Unidos, para isolar a
+tendência e os componentes de erro da série, a fim de examiná-los com
+maior precisão.
 
-Este estudo visa contribuir para uma melhor compreensão da dinâmica do
-mercado de trabalho no Brasil, permitindo uma análise mais informada das
-flutuações no rendimento real médio mensal de todos os trabalhos
-efetivos. Na proxima seção, apresento os resultados desta
-análise, incluindo histograma da distribuição dos rendimentos,
-estatísticas descritivas que resumem as principais características da
-série temporal, correlogramas, estimação e testes sobre os modelos e por fim a previsão feita através do modelo selecionado pelos critérios estatisticos. Boa leitura!
+    Este estudo visa contribuir para uma melhor compreensão da dinâmica
+do mercado de trabalho no Brasil, permitindo uma análise mais informada
+das flutuações no rendimento real médio mensal de todos os trabalhos
+efetivos.
 
-## Bibliotecas utilizadas no estudo:
+    Na proxima seção, apresento os resultados desta análise, incluindo
+histograma da distribuição dos rendimentos, estatísticas descritivas que
+resumem as principais características da série temporal, correlogramas,
+estimação e testes sobre os modelos e por fim a previsão feita através
+do modelo selecionado pelos critérios estatisticos. Boa leitura!
 
 ```{r packages and libraries}
+# Bibliotecas utilizadas no estudo:
 library(knitr)
 library(ipeadatar)
 library(dplyr)
@@ -104,7 +109,8 @@ dados_RRTE <- select(dados_RRTE, date, value)
 
 ## 2.1 Histograma da distribuição dos dados de rendimento
 
-Logo abaixo temos o histograma para melhor visualização da distribuição dos dados.
+    Logo abaixo temos o histograma para melhor visualização da
+distribuição dos dados.
 
 ```{r histograma}
 #histograma
@@ -113,7 +119,7 @@ hist(dados_RRTE$value,prob=T,
      ylab = "Densidade", xlab = "Dados")
 ```
 
-Identifica-se pelo histograma da série de dados que a maioria dos
+    Identifica-se pelo histograma da série de dados que a maioria dos
 resultados se concentram no intervalo de 2.800 a 3.000 reais em média.
 
 ## 2.2 Estatísticas Descritivas
@@ -139,8 +145,8 @@ estatisticas_formatadas <- kable(estatisticas_RRTE,
 estatisticas_formatadas
 ```
 
-Como era de se esperar a média (2.944,35 reais) encontra-se na maioria
-dos dados no histograma. Nota-se também com destaque o desvio
+    Como era de se esperar a média (2.944,35 reais) encontra-se na
+maioria dos dados no histograma. Nota-se também com destaque o desvio
 padrão,isto é, a distância dos valores em torno da média é de (145,8
 reais) indicando pouca variação da renda média real no período
 analisado.
@@ -163,8 +169,9 @@ axis(1, at = 1:length(datas), labels = format(datas, "%b %Y"),
 
 ```
 
-Logo abaixo temos o mesmo gráfico apresentado com mais detalhes para
-melhor interação e visualização (Obs: este gráfico abaixo deve ser visto em formato .html)
+    Logo abaixo temos o mesmo gráfico apresentado com mais detalhes para
+melhor interação e visualização (Obs: este gráfico abaixo deve ser visto
+em formato .html)
 
 ```{r grafico 1 com mais detalhes}
 
@@ -184,21 +191,21 @@ dygraph(
 )
 ```
 
-É facil notar que há uma sazonalidade nesta série com amplitudes de
+    É facil notar que há uma sazonalidade nesta série com amplitudes de
 renda entre os meses de janeiro a março, geralmente começando a aumentar
-em dezembro. Dessa forma, esta série possui sazonalidade do
-tipo multiplicativa, podendo visualmente ser identificada, pois a
-amplitude dela aumenta com o passar do tempo.Observa-se abaixo (2.4)
-esses aspectos nitidamente pela função de autocorrelação. Ainda pode-se
-destacar uma forte queda da renda entre fevereiro e dezembro de 2021,
-que pode ter ocorrido pelos efeitos adversos causados pela pandemia de
-covid-19. Também nota-se que não há outliers nesta serie.
+em dezembro. Dessa forma, esta série possui sazonalidade do tipo
+multiplicativa, podendo visualmente ser identificada, pois a amplitude
+dela aumenta com o passar do tempo.Observa-se abaixo (2.4) esses
+aspectos nitidamente pela função de autocorrelação. Ainda cabe destacar
+uma forte queda da renda entre fevereiro e dezembro de 2021, que pode
+ter ocorrido pelos efeitos adversos causados pela pandemia de covid-19.
+Também nota-se que não há outliers nesta serie.
 
 ## 2.4 Teste de raiz unitária
 
-Pelo gráfico a série não parece produzir tendência, mas parece possuir drift
-por conta das caracteristicas da propria série. Abaixo é feito um teste
-para identificar se a série possui raiz unitária.
+    Pelo gráfico a série não parece produzir tendência, mas parece
+possuir drift por conta das caracteristicas da propria série. Abaixo é
+feito um teste para identificar se a série possui raiz unitária.
 
 ```{r teste de ru}
 #Teste de raiz unitária com 5 lags, drift e criterios BIC
@@ -207,19 +214,20 @@ ur@testreg
 ur@cval
 ```
 
-O modelo foi selecionado com 4 lags, mesmo sendo fornecido 5 lags.
-Analisando os resultados encontra-se o coeficiente $z.lag.1$,
-parâmetro de interesse para o teste de raiz unitária e para avaliar a sua
+    O modelo foi selecionado com 4 lags, mesmo sendo fornecido 5 lags.
+Analisando os resultados encontra-se o coeficiente $z.lag.1$, parâmetro
+de interesse para o teste de raiz unitária e para avaliar a sua
 significância precisa-se da tabela de valores críticos que fica na
 variável $ur@cval$ do teste.
 
-Diante disso, $tau2$ é a estatística referente ao coeficiente $z.lag.1$ e estes são os
-dados que interessam, a informação de significância da tabela
-coefficients refere-se ao $teste-t$. Na mesma tabela temos que o valor da
-estatistíca para $z.lag.1$ é $-5.295$ e avaliando os níveis críticos de $tau2$
-conclui-se que é possível rejeitar a hipótese nula para $z.lag.1$ e,
-portanto, a série não possui raiz unitária e é estacionária. Vamos agora
-analisar o correlograma da serie abaixo.
+    Diante disso, $tau2$ é a estatística referente ao coeficiente
+$z.lag.1$ e estes são os dados que interessam, a informação de
+significância da tabela coefficients refere-se ao $teste-t$. Na mesma
+tabela temos que o valor da estatistíca para $z.lag.1$ é $-5.295$ e
+avaliando os níveis críticos de $tau2$ conclui-se que é possível
+rejeitar a hipótese nula para $z.lag.1$ e, portanto, a série não possui
+raiz unitária e é estacionária. Vamos agora analisar o correlograma da
+serie abaixo.
 
 ## 2.5 Correlogramas e modelos ARMA(p,q)
 
@@ -230,7 +238,7 @@ pacf(serie,lag=137,main="FACP")
 
 ```
 
-Ao observar o correlograma, percebe-se uma sazonalidade do tipo
+    Ao observar o correlograma, percebe-se uma sazonalidade do tipo
 multiplicativa que incide em épocas específicas e em seus arredores.
 Isto é, a significância estatística não se limita apenas aos períodos,
 mas também abrange os arredores da série de dados. Considerando essa
@@ -241,13 +249,15 @@ enquanto na Função de Autocorrelação Parcial (FACP), ocorre um
 truncamento no segundo lag. Também é possível sugerir a possibilidade de
 um MA(2), uma vez que existe um truncamento no segundo lag da FAC. Dessa
 forma, pretende-se testar um modelo do tipo ARMA(2,2), AR(2) e MA(2)
-para uma análise mais profunda presente nos dados é aconselhável verificar todas as combinações possíveis de um ARMA(2,2). Mas antes devemos dessazonalizar a série.
+para uma análise mais profunda presente nos dados é aconselhável
+verificar todas as combinações possíveis de um ARMA(2,2). Mas antes
+devemos dessazonalizar a série.
 
 ## 2.6 Decomposição X11
 
-Ao perceber a sazonalidade um método comum para dessazonalizar séries
-temporais é utilizar a metodologia do Census Bureau dos Estados Unidos
-da América, conhecida como X11 (US BUREAU OF THE CENSUS, 2013). O
+    Ao perceber a sazonalidade um método comum para dessazonalizar
+séries temporais é utilizar a metodologia do Census Bureau dos Estados
+Unidos da América, conhecida como X11 (US BUREAU OF THE CENSUS, 2013). O
 primeiro passo é carregar o pacote 'seasonal' (SAX e EDDELBUETTEL, 2018)
 no ambiente de trabalho. Para visualizar os resultados, utilizei a
 função 'autoplot' do pacote 'fpp2' (HYNDMAN, 2018), que nos permite
@@ -268,7 +278,7 @@ autoplot(fit) + ggtitle("Decomposição X11 da série")+theme_minimal()
 
 ```
 
-Abaixo temos um gráfico que mostra a série dessazonalizada e a sua
+    Abaixo temos um gráfico que mostra a série dessazonalizada e a sua
 tendência obtida através da técnica *Rolling Mean*.
 
 ## 2.7 Gráfico da série dessazonalizada
@@ -285,8 +295,8 @@ scale_colour_manual(values = c("gray", "blue", "red"), breaks = c("Data",
                                                                   "Trend"))
 ```
 
-Observa-se na série temporal a presença de componentes sazonais. Para
-isolar esses elementos, foi realizada a decomposição da série,
+    Observa-se na série temporal a presença de componentes sazonais.
+Para isolar esses elementos, foi realizada a decomposição da série,
 resultando na extração da componente dessazonalizada. Em outras
 palavras, a série dessazonalizada consiste apenas na parte que reflete a
 tendência e os componentes de erro, eliminando completamente a
@@ -295,13 +305,13 @@ porém, sem a presença da sazonalidade, o que nos permite analisá-la de
 forma mais precisa e identificar padrões e correlações sem a
 interferência das variações sazonais.
 
-Dessa forma, ao analisar o gráfico, observa-se um crescimento no
+    Dessa forma, ao analisar o gráfico, observa-se um crescimento no
 rendimento médio ao longo dos anos, com a influência de algum choque no
 período entre 2021 e 2022, caracterizado por um forte aumento no final
 de 2022, seguido pela retomada da tendência de crescimento anterior a
 esse choque.
 
-Baseado no correlograma da série estima-se abaixo os modelos ARMA
+    Baseado no correlograma da série estima-se abaixo os modelos ARMA
 adequados
 
 ## 2.8 Tabela dos modelos ARMA(p,q)
@@ -332,11 +342,11 @@ tabela_markdown <- kable(resultados_df, format = "markdown", align = "c")
 tabela_markdown
 ```
 
-Note que pela tabela o modelo ARMA(2,2) tem a maior log verossimilhança,
-o que sugere que se ajusta melhor aos dados em comparação com outros
-modelos. Porém, pelos critérios AIC e BIC o melhor modelo a ser
-utilizado é um ARMA(1,2). Para uma melhor tomada de decisão analiza-se a significância dos
-parâmetros e o comportamento dos modelos.
+    Note que pela tabela o modelo ARMA(2,2) tem a maior log
+verossimilhança, o que sugere que se ajusta melhor aos dados em
+comparação com outros modelos. Porém, pelos critérios AIC e BIC o melhor
+modelo a ser utilizado é um ARMA(1,2). Para uma melhor tomada de decisão
+analiza-se a significância dos parâmetros e o comportamento dos modelos.
 
 ```{r teste t}
 # Estima o modelo ARMA(2,2)
@@ -358,14 +368,14 @@ tabela_markdown <- kable(tabela_coef_desv_t, format = "markdown", align = "c")
 tabela_markdown
 ```
 
-Pela tabela acima podemos ver que no AR(1) possui o único valor t que
-não ultrapassa 1.96, isto é, para um nível de significância de 5%
-mostra não ser um parâmetro com significancia estatistica. Dessa
-Forma, Fica mais claro que nosso modelo preferivel seja o ARMA(2,2). Cabe
+    Pela tabela acima podemos ver que no AR(1) possui o único valor t
+que não ultrapassa 1.96, isto é, para um nível de significância de 5%
+mostra não ser um parâmetro com significancia estatistica. Dessa Forma,
+Fica mais claro que nosso modelo preferivel seja o ARMA(2,2). Cabe
 destacar que essa estimação foi feita retirando a sazonalidade dos
 dados, ao deixar o efeito de sazonalidade o AR(2) é que se torna não
-significante. Por fim, como último teste observa-se o correlograma
-dos resíduos a fim de identificar indícios de normalidade.
+significante. Por fim, como último teste observa-se o correlograma dos
+resíduos a fim de identificar indícios de normalidade.
 
 ```{r residuos}
 # Lista de ordens ARMA(2,2)
@@ -392,7 +402,14 @@ for (i in 1:nrow(ordens)) {
 par(mfrow = c(1, 1))
 ```
 
-O comportamento dos residuos de todos os modelos mostra que o modelo ARMA(2,2) tem seus residuos dentro das faixas de significância exceto por alguns períodos em que há algumas linhas que a ultrapassam, isso possivelmente se deve aos periodos de sazonalidade que não puderam ser completamente expurgados na dessazonalização. O mesmo acontece com o modelo ARMA(1,2). Diante disso, pondera-se que a melhor escolha seja utilizar o ARMA(2,2) para previsão, pois foi o único que se mostrou mais eficiente em todos os testes realizados.
+    O comportamento dos residuos de todos os modelos mostra que o modelo
+ARMA(2,2) tem seus residuos dentro das faixas de significância exceto
+por alguns períodos em que há algumas linhas que a ultrapassam, isso
+possivelmente se deve aos periodos de sazonalidade que não puderam ser
+completamente expurgados na dessazonalização. O mesmo acontece com o
+modelo ARMA(1,2). Diante disso, pondera-se que a melhor escolha seja
+utilizar o ARMA(2,2) para previsão, pois foi o único que se mostrou mais
+eficiente em todos os testes realizados.
 
 ```{r prev}
 # Gerar previsões
@@ -403,8 +420,8 @@ plot(previsoes, main = "Previsões ARMA(2,2)")
 
 ```
 
-Como ultima etapa de análise deste estudo mostramos os testes em relação a
-heterocedasticidade condicional do modelo escolhido.
+    Como ultima etapa de análise deste estudo mostramos os testes em
+relação a heterocedasticidade condicional do modelo escolhido.
 
 ```{r testes cond}
 # Calcular os resíduos ao quadrado
@@ -418,9 +435,11 @@ Box.test(residuos_quadrados, lag = 20, type = "Ljung-Box")
 
 ```
 
-Pelo correlograma e o teste de Box-Ljung pode-se inferir presença de
-efeitos ARCH nos resíduos já que há picos significativos. Então,
-provavelmente o modelo apresenta alguma dependência temporal. Além disso, rejeita-se a hipótese nula de que todos os coeficientes de autocorrelação dos resíduos são iguais a 0. Dessa forma, agora pode-se
+    Pelo correlograma e o teste de Box-Ljung pode-se inferir presença
+deefeitos ARCH nos resíduos já que há picos significativos. Então,
+provavelmente o modelo apresenta alguma dependência temporal. Além
+disso, rejeita-se a hipótese nula de que todos os coeficientes de
+autocorrelação dos resíduos são iguais a 0. Dessa forma, agora pode-se
 ajustar os resíduos da estimação em um modelo GARCH(1,1).
 
 ```{r}
@@ -433,13 +452,20 @@ ajuste_garch <- ugarchfit(modelo_garch, data = residuos_quadrados)
 print(ajuste_garch)
  
 ```
-O modelo GARCH(1,1) parece se ajustar bem aos dados, com parâmetros significativos e resíduos que não exibem autocorrelação serial ou efeitos ARCH significativos.
+
+    O modelo GARCH(1,1) parece se ajustar bem aos dados, com parâmetros
+significativos e resíduos que não exibem autocorrelação serial ou
+efeitos ARCH significativos.
 
 ```{r plot3}
 # Gráfico da variância ou desvio padrão condicional
 plot(ajuste_garch, which = 3)
 ```
-Observa-se no gráfico acima a volatilidade condicional (cinza) e os retornos absolutos (azul). Há momentos de grande volatilidade o que mostra bastante dependência temporal nos residuos. Por fim, realiza-se a previsão para o modelo GARCH(1,1).
+
+    Observa-se no gráfico acima a volatilidade condicional (cinza) e os
+retornos absolutos (azul). Há momentos de grande volatilidade o que
+mostra bastante dependência temporal nos residuos. Por fim, realiza-se a
+previsão para o modelo GARCH(1,1).
 
 ```{r prev2}
 # Realiza o forecast
@@ -449,32 +475,42 @@ forecast_garch <- ugarchforecast(ajuste_garch, n.ahead = 1)
 plot(forecast_garch, which =3) # Forecast da variância
 
 ```
-Para a previsão da série observa-se uma previsão de aumento da variância em um período a frente.
+
+    Para a previsão da série observa-se uma previsão de aumento da
+variância em um período a frente.
 
 # 3 Conclusões
 
-A série temporal do rendimento real médio mensal estudada oferece
-$\textit{insights}$ valiosos sobre a economia do país e as condições de vida da
-população. Ela reflete a dinâmica do mercado de trabalho brasileiro e
-suas flutuações ao longo do tempo.
+    A série temporal do rendimento real médio mensal estudada oferece
+$\textit{insights}$ valiosos sobre a economia do país e as condições de
+vida da população. Ela reflete a dinâmica do mercado de trabalho
+brasileiro e suas flutuações ao longo do tempo.
 
-A análise revelou a presença de sazonalidade na série temporal. Esta
+    A análise revelou a presença de sazonalidade na série temporal. Esta
 sazonalidade é do tipo multiplicativa e está relacionada a variações nos
 rendimentos ao longo do ano, com destaque para os meses de dezembro a
 fevereiro, nos quais as amplitudes de renda são mais evidentes.
 
-A aplicação da metodologia X11 do Census Bureau dos Estados Unidos
+    A aplicação da metodologia X11 do Census Bureau dos Estados Unidos
 permitiu a dessazonalização da série, isolando a tendência e os
 componentes de erro. Isso nos possibilitou analisar a série de forma
 mais precisa, identificando padrões e correlações sem a influência das
 variações sazonais.
 
-O modelo ARMA(2,2) foi identificado como o mais apropriado para modelar a série temporal, proporcionando uma base sólida para previsões futuras. A escolha foi fundamentada em critérios estatísticos robustos.
+    O modelo ARMA(2,2) foi identificado como o mais apropriado para
+modelar a série temporal, proporcionando uma base sólida para previsões
+futuras. A escolha foi fundamentada em critérios estatísticos robustos.
 
-Além disso, a presença de heterocedasticidade condicional nos resíduos foi reconhecida e tratada com a aplicação de um modelo GARCH(1,1). O que pode melhorar a precisão das previsões, levando em consideração a variabilidade nas amplitudes dos resíduos ao longo do tempo.
+    Além disso, a presença de heterocedasticidade condicional nos
+resíduos foi reconhecida e tratada com a aplicação de um modelo
+GARCH(1,1). O que pode melhorar a precisão das previsões, levando em
+consideração a variabilidade nas amplitudes dos resíduos ao longo do
+tempo.
 
-E como pôde ser notado há uma previsão de queda do rendimento real médio nos próximos meses, isto é, nos últimos meses de 2023 e nos primeiros meses de 2024, colocando fim a um período de crescimento da renda média desde 2022.
-
+    E como pôde ser notado há uma previsão de queda do rendimento real
+médio nos próximos meses, isto é, nos últimos meses de 2023 e nos
+primeiros meses de 2024, colocando fim a um período de crescimento da
+renda média desde 2022.
 
 # 4 Referências
 
