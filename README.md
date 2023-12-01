@@ -5,7 +5,7 @@ Para melhor visualização dos resultados e códigos visite [o trabalho no Rpubs
 
 ## Descrição
 
-Este projeto realiza uma análise de série temporal do rendimento real médio mensal obtido por meio da Pesquisa Nacional por Amostra de Domicílios Contínua (PNADC). O objetivo é entender as tendências e variações nesse rendimento ao longo do tempo.
+Este projeto realiza uma análise de série temporal do rendimento real médio mensal obtido por meio da Pesquisa Nacional por Amostra de Domicílios Contínua (PNADC). O objetivo é entender as tendências e variações nesse rendimento ao longo do tempo bem como fazer previsões para os próximos meses.
 
 ## Fonte de Dados
 
