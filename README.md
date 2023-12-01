@@ -31,7 +31,7 @@ install.packages('Nome-do-pacote')
 
 Siga estas etapas para usar o projeto:
 
-    Clone este repositório: git clone https://github.com/seu-usuario/time-series-analysis-PNAD.git
+    Clone este repositório: git clone https://github.com/alecorreia94/time-series-analysis-PNAD.git
 
     Abra o arquivo rendimento_medio.Rmd no RStudio, que é um arquivo R Markdown.
 
