@@ -1,13 +1,13 @@
 ---
 title: "Rendimento real médio mensal de todos os trabalhos efetivos no Brasil"
-subtitle: "Econometria II - Séries Temporais"
-author: "Francisco Alexandre"
+subtitle: "Doutorado em economia - Econometria II - Séries Temporais - Professor: Roberto Tatiwa - CAEN/UFC"
+author: "Autor: Francisco Alexandre"
 date: "2023-11-29"
 output:
+  html_document: default
+  word_document: default
   pdf_document:
     latex_engine: xelatex
-  word_document: default
-  html_document: default
 header-includes:
    - \usepackage{parskip}
 always_allow_html: true
@@ -48,8 +48,8 @@ disponibilizada pelo Instituto de Pesquisa Econômica Aplicada
 por Amostra de Domicílios Contínua (PNADC), Fonte confiável e abrangente
 de dados sobre o mercado de trabalho brasileiro.
 
-    A série temporal em análise abrange um período de 137 observações
-mensais, que se estende desde março de 2021 até julho de 2023. Essa
+    A série temporal em análise abrange um período de 140 observações
+mensais, que se estende desde março de 2021 até outubro de 2023. Essa
 janela temporal nos permite examinar tendências e padrões que podem ter
 ocorrido ao longo desse período, bem como identificar qualquer
 sazonalidade que possa afetar o rendimento real médio. A análise desses
@@ -157,7 +157,7 @@ analisado.
 ```{r plot1}
 
 # Cria um vetor de datas para o eixo x
-datas <- seq(as.Date("2012-03-01"), as.Date("2023-07-01"), by = "1 month")
+datas <- seq(as.Date("2012-03-01"), as.Date("2023-10-01"), by = "1 month")
 
 # Cria o gráfico de séries temporais
 plot.ts(dados_RRTE$value, 
@@ -236,7 +236,6 @@ serie abaixo.
 #FAC E FACP da serie refet
 Acf(serie,lag=137,main="FAC" )
 pacf(serie,lag=137,main="FACP")
-
 ```
 
     Ao observar o correlograma, percebe-se uma sazonalidade do tipo
@@ -459,7 +458,7 @@ print(ajuste_garch)
 ```
 
     O modelo GARCH(1,1) parece se ajustar bem aos dados, com parâmetros
-significativos e resíduos que não exibem autocorrelação serial ou
+significativos da equação da variância enquanto para a equação da média ARMA(2,2) os parâmetros não foram significativos. Além disso, os resíduos não exibem autocorrelação serial ou
 efeitos ARCH significativos.
 
 ```{r plot3}
